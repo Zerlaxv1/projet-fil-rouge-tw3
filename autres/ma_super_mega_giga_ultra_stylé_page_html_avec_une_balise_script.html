@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const profil = {
+            nom: "Alice",
+            age: 25,
+            ville: "Paris",
+            centresInteret: ["musée", "rando", "cuisine"],
+        }
+
+        console.log(profil.nom)                // "Alice"
+        console.log(profil["ville"])           // "Paris"
+        console.log(profil.centresInteret[0])  // "musée"
+
+        profil.age = 26
+        profil.email = "alice@example.com"
+        console.log(profil.age)                // 26
+
+        const { nom, age, ville } = profil
+        console.log(nom, age, ville)           // Alice 26 Paris
+
+        const { nom: prenom, ville: residence } = profil
+        console.log(prenom, residence)         // Alice Paris
+
+        const [premierInteret] = profil.centresInteret
+        console.log(premierInteret)            // "musée"
+
+        console.log(window.innerWidth)         // largeur de la fenêtre
+        console.log(window === globalThis)     // true : window EST l'objet global ici
+
+        const p = document.createElement("p")
+        p.textContent = `Profil : ${profil.nom}`
+        document.body.appendChild(p)
+
+        console.log(typeof window)             // "undefined"
+        console.log(typeof globalThis)         // "object" — c'est le global portatif
+    </script>
+</body>
+
+</html>
