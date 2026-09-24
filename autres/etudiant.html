@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+</head>
+
+<body>
+    <h1 id="sortie">a</h1>
+
+    <script>
+        const etudiant = { nom: "Voisin Clément", age: 12, note: 12 }
+        class Profil {
+            constructor(user) {
+                this.user = user
+            }
+        }
+        const profil = new Profil(etudiant)
+        const { nom, age, note = 0, ...autresInfos } = profil.user
+        const statut = note >= 10 ? "Admis" : "Échec"
+        document.querySelector("#sortie").textContent = `Format : Nom: ${nom}, Age: ${age}, Statut: ${statut}, Note: ${note}/20, Autres: ${JSONstringify(autresInfos)}]`
+    </script>
+</body>
+
+</html>
