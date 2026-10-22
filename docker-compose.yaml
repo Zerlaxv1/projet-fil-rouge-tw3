@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: tw3
+      POSTGRES_PASSWORD: tw3
+      POSTGRES_DB: tw3_tasks
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    depends_on:
+      - db
+    environment:
+      PORT: "3000"
+      DATABASE_URL: "postgresql://tw3:tw3@db:5432/tw3_tasks"
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

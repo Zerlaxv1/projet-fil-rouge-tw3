@@ -17,9 +17,11 @@
   "dependencies": {
     "express": "^5.2.1"
   },
-  "main": "src2/server.js",
+  "main": "src3/server.js",
   "scripts": {
-    "dev": "nodemon src2/server.js",
-    "start": "node index.js"
+    "start": "bun run src3/server.ts",
+    "dev": "bun run src3/server.ts",
+    "test": "vitest run",
+    "build": "bun build src3/server.ts --outdir dist"
   }
 }
