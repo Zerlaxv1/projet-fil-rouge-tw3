@@ -1,0 +1,18 @@
+# Image de base : Node.js léger sur Alpine Linux
+FROM oven/bun:alpine
+
+# Répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copier et installer les dépendances
+COPY package.json ./
+RUN bun install
+
+# Copier le reste du code
+COPY . .
+
+# Exposer le port 3000
+EXPOSE 3000
+
+# Commande pour démarrer l'application
+CMD ["bun", "start"]
