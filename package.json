@@ -22,6 +22,6 @@
     "start": "bun run src3/server.ts",
     "dev": "bun run src3/server.ts",
     "test": "vitest run",
-    "build": "bun build src3/server.ts --outdir dist"
+    "build": "bun build src3/server.ts --outdir dist --target=node --external express"
   }
 }
