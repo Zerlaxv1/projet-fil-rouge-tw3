@@ -1,3 +1,4 @@
+# BUILD
 FROM oven/bun:alpine AS build
 WORKDIR /app
 
@@ -14,6 +15,7 @@ RUN bun run build
 # Alléger le stage de build
 RUN bun prune --prod
 
+# RUNTIME
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
