@@ -26,6 +26,7 @@
     "start": "bun run src/server.ts",
     "dev": "bun run src/server.ts",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "build": "bun build src/server.ts --outdir dist --target=node --external express --external mongodb"
   }
 }
