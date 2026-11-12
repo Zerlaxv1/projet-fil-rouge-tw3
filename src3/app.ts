@@ -1,6 +1,6 @@
 import express from "express";
 import tachesRouter from "./routes/taches.routes.ts";
-// import { gestionnaireErreurs } from "./middlewares/erreurs.ts";
+import { gestionnaireErreurs } from "./middlewares/erreurs.ts";
 
 const app = express();
 
@@ -14,6 +14,6 @@ app.use((req, _, next) => {
   next(err);
 });
 
-// app.use(gestionnaireErreurs);
+app.use(gestionnaireErreurs);
 
 export default app;

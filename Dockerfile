@@ -16,7 +16,7 @@ RUN bun run build
 RUN bun prune --prod
 
 # RUNTIME
-FROM node:22-alpine
+FROM node:26-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/package.json ./package.json

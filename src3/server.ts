@@ -1,5 +1,13 @@
 import app from "./app.ts";
+import { initialiserBase } from "./db.ts";
 
 let PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-app.listen(PORT, () => console.log(`API sur http://localhost:${PORT}`));
+initialiserBase()
+    .then(() => {
+        app.listen(PORT, () => console.log(`API sur http://localhost:${PORT}`));
+    })
+    .catch((error: unknown) => {
+        console.error("Impossible d'initialiser la base de données", error);
+        process.exitCode = 1;
+    });

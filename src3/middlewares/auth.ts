@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { pool } from "../db";
 
 interface Utilisateur {
   id: number;
@@ -9,22 +10,29 @@ export interface RequeteAuthentifiee extends Request {
   utilisateur: Utilisateur;
 }
 
-const JETONS_VALIDES = new Map([["abc123", { id: 1, role: "admin" }]]);
-
-export function authentifier(req: Request, res: Response, next: NextFunction) {
-  const entete = req.headers.authorization; // "Bearer abc123"
+export async function authentifier(req: Request, res: Response, next: NextFunction) {
+  const entete = req.headers.authorization;
 
   if (!entete?.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Jeton manquant" });
   }
 
-  const utilisateur = JETONS_VALIDES.get(entete.slice(7));
-  if (!utilisateur) {
-    return res.status(401).json({ error: "Jeton invalide" });
-  }
+  try {
+    const resultat = await pool.query<{ id: number; role: string }>(
+      "SELECT id, role FROM utilisateurs WHERE jeton = $1",
+      [entete.slice(7)]
+    );
+    const utilisateur = resultat.rows[0];
 
-  (req as RequeteAuthentifiee).utilisateur = utilisateur;
-  next();
+    if (!utilisateur) {
+      return res.status(401).json({ error: "Jeton invalide" });
+    }
+
+    (req as RequeteAuthentifiee).utilisateur = utilisateur;
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function exigerRole(role: string) {
