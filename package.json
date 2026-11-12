@@ -21,11 +21,11 @@
     "mongodb-memory-server": "^11.3.0",
     "pg": "^8.23.1"
   },
-  "main": "src5/server.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "bun run src5/server.ts",
-    "dev": "bun run src5/server.ts",
+    "start": "bun run src/server.ts",
+    "dev": "bun run src/server.ts",
     "test": "vitest run",
-    "build": "bun build src5/server.ts --outdir dist --target=node --external express --external mongodb"
+    "build": "bun build src/server.ts --outdir dist --target=node --external express --external mongodb"
   }
 }
