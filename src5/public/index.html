@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test API tâches</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+        form, li { display: flex; gap: .6rem; align-items: center; margin: .7rem 0; }
+        input, button { padding: .45rem .6rem; }
+        input[type="text"] { flex: 1; }
+        #message { min-height: 1.5rem; color: #555; }
+        li { border-bottom: 1px solid #ddd; padding-bottom: .5rem; }
+        li span { flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>Test de l'API tâches</h1>
+
+    <form id="auth-form">
+        <label for="token">Token</label>
+        <input id="token" value="abc123" required>
+        <button type="submit">Charger les tâches</button>
+    </form>
+
+    <form id="task-form">
+        <input id="name" type="text" placeholder="Nom de la tâche" required>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <p id="message"></p>
+    <ul id="tasks"></ul>
+
+    <script>
+        const tokenInput = document.querySelector("#token");
+        const nameInput = document.querySelector("#name");
+        const taskList = document.querySelector("#tasks");
+        const message = document.querySelector("#message");
+
+        async function api(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${tokenInput.value}`,
+                    ...(options.headers || {})
+                }
+            });
+            const body = await response.json();
+            if (!response.ok) throw new Error(body.message || body.error || `HTTP ${response.status}`);
+            return body;
+        }
+
+        function afficherTaches(taches) {
+            taskList.replaceChildren();
+            for (const tache of taches) {
+                const item = document.createElement("li");
+                const label = document.createElement("span");
+                label.textContent = `#${tache.id} - ${tache.nom}${tache.faite ? " (faite)" : ""}`;
+                const toggle = document.createElement("button");
+                toggle.textContent = tache.faite ? "Rouvrir" : "Terminer";
+                toggle.onclick = () => modifierTache(tache.id, !tache.faite);
+                const supprimer = document.createElement("button");
+                supprimer.textContent = "Supprimer";
+                supprimer.onclick = () => supprimerTache(tache.id);
+                item.append(label, toggle, supprimer);
+                taskList.append(item);
+            }
+        }
+
+        async function chargerTaches() {
+            afficherTaches(await api("/v1/taches/"));
+            message.textContent = "Tâches chargées.";
+        }
+
+        async function modifierTache(id, faite) {
+            await api(`/v1/taches/${id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ faite })
+            });
+            await chargerTaches();
+        }
+
+        async function supprimerTache(id) {
+            await api(`/v1/taches/${id}`, { method: "DELETE" });
+            await chargerTaches();
+        }
+
+        document.querySelector("#auth-form").onsubmit = async (event) => {
+            event.preventDefault();
+            try { await chargerTaches(); } catch (error) { message.textContent = error.message; }
+        };
+
+        document.querySelector("#task-form").onsubmit = async (event) => {
+            event.preventDefault();
+            try {
+                await api("/v1/taches/", {
+                    method: "POST",
+                    body: JSON.stringify({ nom: nameInput.value })
+                });
+                nameInput.value = "";
+                await chargerTaches();
+            } catch (error) { message.textContent = error.message; }
+        };
+    </script>
+</body>
+</html>

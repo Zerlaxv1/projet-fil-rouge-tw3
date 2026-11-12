@@ -18,13 +18,14 @@
   "dependencies": {
     "express": "^5.2.1",
     "mongodb": "^7.8.0",
+    "mongodb-memory-server": "^11.3.0",
     "pg": "^8.23.1"
   },
-  "main": "src3/server.js",
+  "main": "src5/server.ts",
   "scripts": {
-    "start": "bun run src3/server.ts",
-    "dev": "bun run src3/server.ts",
+    "start": "bun run src5/server.ts",
+    "dev": "bun run src5/server.ts",
     "test": "vitest run",
-    "build": "bun build src3/server.ts --outdir dist --target=node --external express --external pg"
+    "build": "bun build src5/server.ts --outdir dist --target=node --external express --external mongodb"
   }
 }

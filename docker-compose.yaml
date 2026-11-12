@@ -1,14 +1,12 @@
 services:
   db:
-    image: postgres:latest
+    image: mongo:latest
     environment:
-      POSTGRES_USER: tw3
-      POSTGRES_PASSWORD: tw3
-      POSTGRES_DB: tw3_tasks
+      MONGO_INITDB_DATABASE: tw3_tasks
     volumes:
-      - pgdata:/var/lib/postgresql
+      - mongodata:/data/db
     ports:
-      - "5432:5432"
+      - "27017:27017"
 
   api:
     build: .
@@ -16,9 +14,10 @@ services:
       - db
     environment:
       PORT: "3000"
-      DATABASE_URL: "postgresql://tw3:tw3@db:5432/tw3_tasks"
+      MONGODB_URI: "mongodb://db:27017"
+      MONGODB_DB: "tw3_tasks"
     ports:
       - "3000:3000"
 
 volumes:
-  pgdata:
+  mongodata:
