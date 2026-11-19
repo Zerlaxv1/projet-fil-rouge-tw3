@@ -12,6 +12,8 @@
         #message { min-height: 1.5rem; color: #555; }
         li { border-bottom: 1px solid #ddd; padding-bottom: .5rem; }
         li span { flex: 1; }
+        li.faite span { text-decoration: line-through; color: #888; }
+        .rang { flex: 0 0 2rem; color: #888; text-align: right; }
     </style>
 </head>
 <body>
@@ -28,12 +30,22 @@
         <button type="submit">Ajouter</button>
     </form>
 
+    <form id="filter-form">
+        <label for="statut">Afficher</label>
+        <select id="statut">
+            <option value="a_faire">À faire</option>
+            <option value="terminees">Terminées</option>
+            <option value="toutes">Toutes</option>
+        </select>
+    </form>
+
     <p id="message"></p>
     <ul id="tasks"></ul>
 
     <script>
         const tokenInput = document.querySelector("#token");
         const nameInput = document.querySelector("#name");
+        const statutSelect = document.querySelector("#statut");
         const taskList = document.querySelector("#tasks");
         const message = document.querySelector("#message");
 
@@ -51,32 +63,58 @@
             return body;
         }
 
+        function bouton(texte, action, titre) {
+            const element = document.createElement("button");
+            element.type = "button";
+            element.textContent = texte;
+            if (titre) element.title = titre;
+            element.onclick = async () => {
+                try { await action(); } catch (error) { message.textContent = error.message; }
+            };
+            return element;
+        }
+
         function afficherTaches(taches) {
             taskList.replaceChildren();
-            for (const tache of taches) {
+            taches.forEach((tache, index) => {
+                const precedente = taches[index - 1];
+                const suivante = taches[index + 1];
                 const item = document.createElement("li");
+                item.classList.toggle("faite", tache.faite);
+                const rang = document.createElement("span");
+                rang.className = "rang";
+                rang.textContent = `${index + 1}.`;
                 const label = document.createElement("span");
                 label.textContent = `#${tache.id} - ${tache.nom}${tache.faite ? " (faite)" : ""}`;
-                const toggle = document.createElement("button");
-                toggle.textContent = tache.faite ? "Rouvrir" : "Terminer";
-                toggle.onclick = () => modifierTache(tache.id, !tache.faite);
-                const supprimer = document.createElement("button");
-                supprimer.textContent = "Supprimer";
-                supprimer.onclick = () => supprimerTache(tache.id);
-                item.append(label, toggle, supprimer);
+                const monter = bouton("↑", () => deplacerTache(tache.id, { avant: precedente.id }), "Plus prioritaire");
+                monter.disabled = !precedente;
+                const descendre = bouton("↓", () => deplacerTache(tache.id, { apres: suivante.id }), "Moins prioritaire");
+                descendre.disabled = !suivante;
+                const toggle = bouton(tache.faite ? "Rouvrir" : "Terminer", () => modifierTache(tache.id, !tache.faite));
+                const supprimer = bouton("Supprimer", () => supprimerTache(tache.id));
+                item.append(rang, label, monter, descendre, toggle, supprimer);
                 taskList.append(item);
-            }
+            });
         }
 
         async function chargerTaches() {
-            afficherTaches(await api("/v1/taches/"));
-            message.textContent = "Tâches chargées.";
+            const taches = await api(`/v1/taches/?statut=${statutSelect.value}`);
+            afficherTaches(taches);
+            message.textContent = taches.length ? "Tâches chargées." : "Aucune tâche.";
         }
 
         async function modifierTache(id, faite) {
             await api(`/v1/taches/${id}`, {
                 method: "PATCH",
                 body: JSON.stringify({ faite })
+            });
+            await chargerTaches();
+        }
+
+        async function deplacerTache(id, position) {
+            await api(`/v1/taches/${id}/priorite`, {
+                method: "PATCH",
+                body: JSON.stringify(position)
             });
             await chargerTaches();
         }
@@ -88,6 +126,10 @@
 
         document.querySelector("#auth-form").onsubmit = async (event) => {
             event.preventDefault();
+            try { await chargerTaches(); } catch (error) { message.textContent = error.message; }
+        };
+
+        statutSelect.onchange = async () => {
             try { await chargerTaches(); } catch (error) { message.textContent = error.message; }
         };
 
